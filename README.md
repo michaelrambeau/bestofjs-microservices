@@ -46,3 +46,13 @@ wt create index.js
 curl https://webtask.it.auth0.com/api/run/wt-mikeair-gmail_com-0/index
 ?webtask_no_cache=1
 ```
+
+## The microservices I did
+
+* scan-github-links
+* bestofjs-projects
+
+Each folder contains at least 2 JavaScript files:
+
+* `<micro-service-name>.js` the code of the micro-service uploaded to webtask.io
+* `index.js` (or index.coffee) used to run the service locally, from the command line. 

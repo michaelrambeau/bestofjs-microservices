@@ -104,14 +104,19 @@ function getGithubDataAll(urls, credentials, cb) {
   });
 }
 
+//Sort repository by star number (called by Array.sort() function)
+function sortRepo(repoA, repoB) {
+  return - (repoA.stars - repoB.stars);
+}
+
 /*
 The main function run by the microservice
 */
 
-module.exports = function (context, cb) {
+module.exports = function (context, done) {
   //Define an helper to send the error message
   var sendError = function (msg) {
-    cb(new Error(msg));
+    done(new Error(msg));
   };
 
   //Check the input
@@ -128,19 +133,29 @@ module.exports = function (context, cb) {
   if (!credentials.client_id) return sendError('No Github credentials `client_id`');
   if (!credentials.client_secret) return sendError('No Github credentials `client_secret`');
 
-  openInputURL(url, function(err, body) {
-    if (err) return sendError(err.message);
-    var links = getGithubLinks(body);
+  //STEP 1: open the source URL and extract the Github links.
+  var f1 = function (callback) {
+    openInputURL(url, function(err, body) {
+      if (err) return sendError(err.message);
+      var links = getGithubLinks(body);
+      callback(null, links);
+    });
+  };
+
+  //STEP 2: Get Github repository data
+  var f2 = function (links, cb) {
     getGithubDataAll(links, credentials, function (err, projects) {
       if (err) return sendError(err.message);
+      var sortedProjects = projects.sort(sortRepo);
       var json = {
         status: 'OK',
         url: url,
-        length: body.length,
         links: links,
-        projects: projects
+        projects: sortedProjects
       };
       cb(null, json);
     });
-  });
+  };
+
+  async.waterfall([f1, f2], done);
 };

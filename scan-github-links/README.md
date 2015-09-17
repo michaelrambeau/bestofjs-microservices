@@ -153,7 +153,7 @@ module.exports = function (context, cb) {
 
 ### Running the micro-service in local
 
-Modules to install:
+Run `npm install` to install the following modules:
 
 * request
 * cheerio
@@ -166,6 +166,12 @@ Secret keys are loaded using `dotenv` module, from the `.env` file
 GITHUB_CLIENT_ID=***
 GITHUB_CLIENT_SECRET=***
 GITHUB_USERNAME=***
+```
+
+Launch the following command from the project root folder:
+
+```
+coffee scan-github-links/index.coffee  https://github.com/cheeaun/mooeditable/wiki/Javascript-WYSIWYG-editors
 ```
 
 

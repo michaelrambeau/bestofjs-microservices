@@ -175,10 +175,24 @@ coffee scan-github-links/index.coffee  https://github.com/cheeaun/mooeditable/wi
 ```
 
 
-### Pass Github credential to webtask.io
+### Create the task from the local file
 
 Secret are passed to the task when the task is created.
 
 ```
-wt create scan-github-links.js  --secret client_id=*** --secret client_secret=*** --secret username=***
+wt create scan-github-links/scan-github-links.js  --secret client_id=*** --secret client_secret=*** --secret username=***
 ```
+
+### Create the task from the code stored on Github
+
+Using the same command as before but with raw code from Github:
+
+```
+wt create https://raw.githubusercontent.com/michaelrambeau/microservices/master/scan-github-links/scan-github-links.js  --secret client_id=*** --secret client_secret=*** --secret username=michaelrambeau
+```
+
+The command line returns the URL to run:
+
+https://webtask.it.auth0.com/api/run/wt-***-gmail_com-0/cc373b22be002f56a37fd1aa128090ad?webtask_no_cache=1
+
+Advantage: pushing code to Github automatically updates the task on webtask.io, no need to run the command line every time the code is updated.

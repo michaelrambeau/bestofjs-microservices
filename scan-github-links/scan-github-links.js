@@ -92,7 +92,7 @@ function getGithubDataAll(urls, credentials, cb) {
         fullname: result.full_name,
         description: result.description,
         stars: result.watchers,
-        updated_at: result.updated_at
+        pushed_at: result.pushed_at
       };
       projects.push(project);
       cb(null, true);

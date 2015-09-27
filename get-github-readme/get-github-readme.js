@@ -103,7 +103,10 @@ module.exports = function (context, done) {
   const options = {
     credentials
   };
-  getReadMe(project, options, function (err, result) {
+  getReadMe(project, options, function (err, readme) {
+    var result = {
+      readme: readme
+    };
     done(err, result);
   });
 

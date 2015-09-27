@@ -2,19 +2,19 @@
 const request = require('request');
 //const async = require('async');
 
-var githubRequest = function(project, path, cb) {
-  var options, url;
-  url = project.repository.replace(/https\:\/\/github.com/, 'https://api.github.com/repos');
-  url = `${url}${path}?client_id=${process.env.GITHUB_CLIENT_ID}&client_secret=${process.env.GITHUB_CLIENT_SECRET}`;
-  options = {
+const githubRequest = function(project, path, options, cb) {
+  const { credentials } = options;
+  let url = project.repository.replace(/https\:\/\/github.com/, 'https://api.github.com/repos');
+  url = `${url}${path}?client_id=${credentials.client_id}&client_secret=${credentials.client_secret}`;
+  var requestOptions = {
     url: url,
     headers: {
-      'User-Agent': process.env.GITHUB_USERNAME,
+      'User-Agent': credentials.username,
       'Accept': 'application/vnd.github.quicksilver-preview+json'
     }
   };
-  console.log('Github request', options);
-  request.get(options, function(error, response, body) {
+  console.log('Github request', requestOptions);
+  request.get(requestOptions, function(error, response, body) {
     var json;
     if (!error && response.statusCode === 200) {
       try {
@@ -31,8 +31,8 @@ var githubRequest = function(project, path, cb) {
 };
 
 
-const getGithubReadme = function(project, cb) {
-  githubRequest(project, '/readme', function(err, json) {
+const getGithubReadme = function(project, options, cb) {
+  githubRequest(project, '/readme', options, function(err, json) {
     var buffer, readme;
     if (err) {
       return cb(err);
@@ -44,10 +44,9 @@ const getGithubReadme = function(project, cb) {
   });
 };
 
-var getReadMe = function (project, cb) {
-  getGithubReadme(project, function (err, readme) {
+var getReadMe = function (project, options, cb) {
+  getGithubReadme(project, options, function (err, readme) {
     if (err) console.log(err);
-    console.log(readme);
     var root = project.repository;
 
     //Replace relative URL by absolute URL
@@ -101,7 +100,10 @@ module.exports = function (context, done) {
   const project = {
     repository: url
   };
-  getReadMe(project, function (err, result) {
+  const options = {
+    credentials
+  };
+  getReadMe(project, options, function (err, result) {
     done(err, result);
   });
 

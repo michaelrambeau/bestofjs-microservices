@@ -46,7 +46,7 @@ const getGithubReadme = function(project, options, cb) {
 
 var getReadMe = function (project, options, cb) {
   getGithubReadme(project, options, function (err, readme) {
-    if (err) console.log(err);
+    if (err) return cb(err);
     var root = project.repository;
 
     //STEP1: replace relative link URL
@@ -61,7 +61,8 @@ var getReadMe = function (project, options, cb) {
       return 'src="'+ getImagePath(root, p1) + '"';
     });
     //STEP3 remove self closed anchors
-    readme = readme.replace(/<a name="(.+?)" \/>/gi, function(match, p1) {
+    //the regexp matches: <a name=\"constant\"> and <a name="forEach">
+    readme = readme.replace(/<a name=\\?"(.+?)\\?" \/>/gi, function(match, p1) {
       console.log('Remove self closed anchor', p1);
       return '';
     });
@@ -118,6 +119,7 @@ module.exports = function (context, done) {
     credentials
   };
   getReadMe(project, options, function (err, readme) {
+    if (err) console.log(err);
     var result = {
       readme: readme
     };

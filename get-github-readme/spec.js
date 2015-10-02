@@ -28,8 +28,8 @@ function getReadme(url) {
       } else {
         const readme = result.readme;
         assert.ok(readme.length > 1000, 'There should be a response whose length is > 1000');
-        assert.end();
       }
+      assert.end();
     });
   });
 }

@@ -58,8 +58,13 @@ var getReadMe = function (project, options, cb) {
     //STEP2: replace relative image URL
     readme = readme.replace(/src=\"(.+?)\"/gi, function(match, p1) {
       console.log('Replace image relative URL', p1);
-      return 'src="'+ getImagePath(root, p1) + '"';}
-    );
+      return 'src="'+ getImagePath(root, p1) + '"';
+    });
+    //STEP3 remove self closed anchors
+    readme = readme.replace(/<a name="(.+?)" \/>/gi, function(match, p1) {
+      console.log('Remove self closed anchor', p1);
+      return '';
+    });
 
     //data.readme = err ? 'Unable to access README.' : readme;
     cb(null, readme);

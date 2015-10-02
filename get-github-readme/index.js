@@ -13,13 +13,12 @@ const context = {
 
 const t0 = process.hrtime();
 
-if (true) webtask(context, function(err, result) {
+webtask(context, function(err, result) {
   if (err) {
     return console.log(err);
   } else {
     const t1 = process.hrtime(t0);
-    console.log('webtask finished with the status:', result.status);
-    console.log(result);
+    console.log('Result length', result.readme.length);
     console.log('Duration (s):', (t1[0] + t1[1] / 1e9).toFixed(2));
   }
 });

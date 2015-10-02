@@ -49,29 +49,38 @@ var getReadMe = function (project, options, cb) {
     if (err) console.log(err);
     var root = project.repository;
 
-    //Replace relative URL by absolute URL
-    var getImagePath = function (url) {
-      var path = url;
-
-      //If the URL is absolute (start with http), we do nothing...
-      if (path.indexOf('http') === 0) return path;
-
-      //Special case: in Faceboox Flux readme, relative URLs start with './'
-      //so we just remove './' from the UL
-      if (path.indexOf('./') === 0) path = path.replace(/.\//, '');
-
-      //...otherwise we create an absolute URL to the "raw image
-      // example: images in "You-Dont-Know-JS" repo.
-      return root + '/raw/master/' + path;
-    };
+    //STEP1: replace relative link URL
+    //[Quick Start](#quick-start) => [Quick Start](https://github.com/node-inspector/node-inspector#quick-start)"
+    readme = readme.replace(/\]\(\#(.+?)\)/gi, function(match, p1) {
+      console.log('Replace link relative URL', p1);
+      return `](${root}#${p1})`;
+    });
+    //STEP2: replace relative image URL
     readme = readme.replace(/src=\"(.+?)\"/gi, function(match, p1) {
-      return 'src="'+ getImagePath(p1) + '"';}
+      console.log('Replace image relative URL', p1);
+      return 'src="'+ getImagePath(root, p1) + '"';}
     );
 
     //data.readme = err ? 'Unable to access README.' : readme;
     cb(null, readme);
   });
 };
+
+//Replace relative URL by absolute URL
+function getImagePath (root, url) {
+  var path = url;
+
+  //If the URL is absolute (start with http), we do nothing...
+  if (path.indexOf('http') === 0) return path;
+
+  //Special case: in Faceboox Flux readme, relative URLs start with './'
+  //so we just remove './' from the UL
+  if (path.indexOf('./') === 0) path = path.replace(/.\//, '');
+
+  //...otherwise we create an absolute URL to the "raw image
+  // example: images in "You-Dont-Know-JS" repo.
+  return root + '/raw/master/' + path;
+}
 
 /*
 The main function run by the microservice

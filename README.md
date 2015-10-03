@@ -2,6 +2,8 @@
 
 Running node.js micro-services using webtask.io.
 
+[![Build Status](https://semaphoreci.com/api/v1/projects/330c44cc-8058-49f8-b3bb-0b98c5cb09d6/559441/badge.svg)](https://semaphoreci.com/mikeair/microservices)
+
 ## How to create your first micro-service with webtask.io
 
 Requirement: sign up to [webtask.io](https://webtask.io/) (using your Github account for example).
@@ -55,4 +57,4 @@ curl https://webtask.it.auth0.com/api/run/wt-mikeair-gmail_com-0/index
 Each folder contains at least 2 JavaScript files:
 
 * `<micro-service-name>.js` the code of the micro-service uploaded to webtask.io
-* `index.js` (or index.coffee) used to run the service locally, from the command line. 
+* `index.js` (or index.coffee) used to run the service locally, from the command line.

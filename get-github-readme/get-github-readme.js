@@ -61,9 +61,14 @@ var getReadMe = function (project, options, cb) {
       return 'src="'+ getImagePath(root, p1) + '"';
     });
     //STEP3 remove self closed anchors
-    //the regexp matches: <a name=\"constant\"> and <a name="forEach">
+    //the regexp matches: <a name=\"forEach\"> and <a name="forEach">
     readme = readme.replace(/<a name=\\?"(.+?)\\?" \/>/gi, function(match, p1) {
       console.log('Remove self closed anchor', p1);
+      return '';
+    });
+    //matches <a name="constant">
+    readme = readme.replace(/<a name="(.+?)">/gi, function(match, p1) {
+      console.log('Remove anchor', p1);
       return '';
     });
 

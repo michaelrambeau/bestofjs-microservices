@@ -56,10 +56,10 @@ var getReadMe = function (project, options, cb) {
       return `](${root}#${p1})`;
     });
     //STEP1.2: replace relative link URL
-    //[Guides and API Docs](/docs) => [](https://github.com/rackt/react-router/tree/master/docs)"
+    //[Guides and API Docs](/docs) => [Guides and API Docs](https://github.com/rackt/react-router/tree/master/docs)"
     readme = readme.replace(/\]\(\/(.+?)\)/gi, function(match, p1) {
       console.log('Replace link relative URL', p1);
-      return `](${root}/${p1})`;
+      return `](${root}/blob/master/${p1})`;
     });
     //STEP2: replace relative image URL
     readme = readme.replace(/src=\"(.+?)\"/gi, function(match, p1) {

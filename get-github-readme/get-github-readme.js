@@ -49,11 +49,17 @@ var getReadMe = function (project, options, cb) {
     if (err) return cb(err);
     var root = project.repository;
 
-    //STEP1: replace relative link URL
+    //STEP1: replace relative anchor link URL
     //[Quick Start](#quick-start) => [Quick Start](https://github.com/node-inspector/node-inspector#quick-start)"
     readme = readme.replace(/\]\(\#(.+?)\)/gi, function(match, p1) {
-      console.log('Replace link relative URL', p1);
+      console.log('Replace link relative anchors', p1);
       return `](${root}#${p1})`;
+    });
+    //STEP1.2: replace relative link URL
+    //[Guides and API Docs](/docs) => [](https://github.com/rackt/react-router/tree/master/docs)"
+    readme = readme.replace(/\]\(\/(.+?)\)/gi, function(match, p1) {
+      console.log('Replace link relative URL', p1);
+      return `](${root}/${p1})`;
     });
     //STEP2: replace relative image URL
     readme = readme.replace(/src=\"(.+?)\"/gi, function(match, p1) {
@@ -71,6 +77,7 @@ var getReadMe = function (project, options, cb) {
       console.log('Remove anchor', p1);
       return '';
     });
+
 
     //data.readme = err ? 'Unable to access README.' : readme;
     cb(null, readme);

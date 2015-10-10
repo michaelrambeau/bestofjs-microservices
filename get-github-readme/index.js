@@ -13,6 +13,8 @@ const context = {
 
 const t0 = process.hrtime();
 
+console.log('Starting manually the webtask', context.data);
+
 webtask(context, function(err, result) {
   if (err) {
     return console.log(err);

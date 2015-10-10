@@ -1,104 +1,6 @@
 "use latest";
 const request = require('request');
-//const async = require('async');
-
-const githubRequest = function(project, path, options, cb) {
-  const { credentials } = options;
-  let url = project.repository.replace(/https\:\/\/github.com/, 'https://api.github.com/repos');
-  url = `${url}${path}?client_id=${credentials.client_id}&client_secret=${credentials.client_secret}`;
-  var requestOptions = {
-    url: url,
-    headers: {
-      'User-Agent': credentials.username,
-      'Accept': 'application/vnd.github.quicksilver-preview+json'
-    }
-  };
-  console.log('Github request', requestOptions);
-  request.get(requestOptions, function(error, response, body) {
-    var json;
-    if (!error && response.statusCode === 200) {
-      try {
-        json = JSON.parse(body);
-        return cb(null, json);
-      } catch (error1) {
-        error = error1;
-        return cb(new Error("Unable to parse JSON response from Github for url " + url + ": " + error));
-      }
-    } else {
-      return cb(new Error("Invalid response from Github for url " + url));
-    }
-  });
-};
-
-
-const getGithubReadme = function(project, options, cb) {
-  githubRequest(project, '/readme', options, function(err, json) {
-    var buffer, readme;
-    if (err) {
-      return cb(err);
-    } else {
-      buffer = new Buffer(json.content, 'base64');
-      readme = buffer.toString('utf8');
-      return cb(null, readme);
-    }
-  });
-};
-
-var getReadMe = function (project, options, cb) {
-  getGithubReadme(project, options, function (err, readme) {
-    if (err) return cb(err);
-    var root = project.repository;
-
-    //STEP1: replace relative anchor link URL
-    //[Quick Start](#quick-start) => [Quick Start](https://github.com/node-inspector/node-inspector#quick-start)"
-    readme = readme.replace(/\]\(\#(.+?)\)/gi, function(match, p1) {
-      console.log('Replace link relative anchors', p1);
-      return `](${root}#${p1})`;
-    });
-    //STEP1.2: replace relative link URL
-    //[Guides and API Docs](/docs) => [Guides and API Docs](https://github.com/rackt/react-router/tree/master/docs)"
-    readme = readme.replace(/\]\(\/(.+?)\)/gi, function(match, p1) {
-      console.log('Replace link relative URL', p1);
-      return `](${root}/blob/master/${p1})`;
-    });
-    //STEP2: replace relative image URL
-    readme = readme.replace(/src=\"(.+?)\"/gi, function(match, p1) {
-      console.log('Replace image relative URL', p1);
-      return 'src="'+ getImagePath(root, p1) + '"';
-    });
-    //STEP3 remove self closed anchors
-    //the regexp matches: <a name=\"forEach\"> and <a name="forEach">
-    readme = readme.replace(/<a name=\\?"(.+?)\\?" \/>/gi, function(match, p1) {
-      console.log('Remove self closed anchor', p1);
-      return '';
-    });
-    //matches <a name="constant">
-    readme = readme.replace(/<a name="(.+?)">/gi, function(match, p1) {
-      console.log('Remove anchor', p1);
-      return '';
-    });
-
-
-    //data.readme = err ? 'Unable to access README.' : readme;
-    cb(null, readme);
-  });
-};
-
-//Replace relative URL by absolute URL
-function getImagePath (root, url) {
-  var path = url;
-
-  //If the URL is absolute (start with http), we do nothing...
-  if (path.indexOf('http') === 0) return path;
-
-  //Special case: in Faceboox Flux readme, relative URLs start with './'
-  //so we just remove './' from the UL
-  if (path.indexOf('./') === 0) path = path.replace(/.\//, '');
-
-  //...otherwise we create an absolute URL to the "raw image
-  // example: images in "You-Dont-Know-JS" repo.
-  return root + '/raw/master/' + path;
-}
+const DEBUG = false; //use to display console debug messages
 
 /*
 The main function run by the microservice
@@ -124,13 +26,10 @@ module.exports = function (context, done) {
   if (!credentials.client_id) return sendError('No Github credentials `client_id`');
   if (!credentials.client_secret) return sendError('No Github credentials `client_secret`');
 
-  const project = {
-    repository: url
-  };
   const options = {
     credentials
   };
-  getReadMe(project, options, function (err, readme) {
+  getReadMe(url, options, function (err, readme) {
     if (err) console.log(err);
     var result = {
       readme: readme
@@ -139,3 +38,104 @@ module.exports = function (context, done) {
   });
 
 };
+
+//Generic function to make a Github request for a given repository
+//Parameters:
+// - repo: full URL of the Github repository
+// - path (optional): added to the repository (ex: '/readme')
+const githubRequest = function(repo, path, options, cb) {
+  const { credentials } = options;
+  let url = repo.replace(/https\:\/\/github.com/, 'https://api.github.com/repos');
+  url = `${url}${path}?client_id=${credentials.client_id}&client_secret=${credentials.client_secret}`;
+  var requestOptions = {
+    url: url,
+    headers: {
+      'User-Agent': credentials.username,
+      'Accept': 'application/vnd.github.VERSION.html'
+    }
+  };
+  console.log('Github request', requestOptions);
+  request.get(requestOptions, function(error, response, body) {
+    if (!error && response.statusCode === 200) {
+      return cb(null, body);
+    } else {
+      return cb(new Error("Invalid response from Github for url " + url));
+    }
+  });
+};
+
+
+const getGithubReadme = function(project, options, cb) {
+  githubRequest(project, '/readme', options, function(err, text) {
+    if (err) {
+      return cb(err);
+    } else {
+      return cb(null, text);
+    }
+  });
+};
+
+var getReadMe = function (repo, options, cb) {
+  getGithubReadme(repo, options, function (err, readme) {
+    if (err) return cb(err);
+
+    var root = repo;
+
+    //STEP1: replace relative anchor link URL
+    //[Quick Start](#quick-start) => [Quick Start](https://github.com/node-inspector/node-inspector#quick-start)"
+    readme = readme.replace(/<a href="\#([^"]+)">/gi, function(match, p1) {
+      if (DEBUG) console.log('Replace link relative anchors', p1);
+      return `<a href="${root}#${p1}">`;
+    });
+    //STEP2: replace relative link URL
+    //[Guides and API Docs](/docs) => [Guides and API Docs](https://github.com/rackt/react-router/tree/master/docs)"
+    readme = readme.replace(/<a href="\/(.+?)">/gi, function(match, p1) {
+      if (DEBUG) console.log('Replace link relative URL', p1);
+      return `<a href="${root}/blob/master/${p1}">`;
+    });
+
+    //STEP3: markdown images seen on https://github.com/MostlyAdequate/mostly-adequate-guide
+    //![cover](images/cover.png)] => ![cover](https://github.com/MostlyAdequate/mostly-adequate-guide/raw/master/images/cover.png)
+    readme = readme.replace(/\!\[(.+?)\]\(\/(.+?)\)/gi, function(match, p1, p2) {
+      if (DEBUG) console.log('Replace md image relative URL', p1);
+      return `[${p1}](${root}/blob/master/${p2})`;
+     });
+
+
+    //STEP4: replace relative image URL
+    readme = readme.replace(/src=\"(.+?)\"/gi, function(match, p1) {
+      if (DEBUG) console.log('Replace image relative URL', p1);
+      return 'src="'+ getImagePath(root, p1) + '"';
+    });
+
+    //STEP5: remove self closed anchors (seen on async repo)
+    //the regexp matches: <a name=\"forEach\"> and <a name="forEach">
+    readme = readme.replace(/<a name=\\?"(.+?)\\?" \/>/gi, function() {
+      if (DEBUG) console.log('Remove self closed anchor', p1);
+      return '';
+    });
+    //matches <a name="constant">
+    readme = readme.replace(/<a name="(.+?)">/gi, function() {
+      if (DEBUG) console.log('Remove anchor', p1);
+      return '';
+    });
+
+    cb(null, readme);
+  });
+};
+
+//Replace relative URL by absolute URL
+function getImagePath (root, url) {
+  var path = url;
+
+  //If the URL is absolute (start with http), we do nothing...
+  if (path.indexOf('http') === 0) return path;
+
+  //Special case: in Faceboox Flux readme, relative URLs start with './'
+  //so we just remove './' from the UL
+  if (path.indexOf('./') === 0) path = path.replace(/.\//, '');
+
+  //...otherwise we create an absolute URL to the "raw image
+  // example: images in "You-Dont-Know-JS" repo.
+  return root + '/raw/master/' + path;
+}

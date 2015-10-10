@@ -6,7 +6,8 @@ const urls = [
   'https://github.com/caolan/async',
   'https://github.com/node-inspector/node-inspector',
   'https://github.com/facebook/flux',
-  'https://github.com/rackt/react-router'
+  'https://github.com/rackt/react-router',
+  'https://github.com/MostlyAdequate/mostly-adequate-guide'
 ];
 urls.forEach( url => getReadme(url) );
 

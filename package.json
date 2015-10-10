@@ -7,6 +7,7 @@
     "async": "^1.4.2",
     "cheerio": "^0.19.0",
     "dotenv": "^1.2.0",
+    "express": "^4.13.3",
     "minimist": "^1.2.0",
     "moment": "^2.10.6",
     "request": "^2.61.0"

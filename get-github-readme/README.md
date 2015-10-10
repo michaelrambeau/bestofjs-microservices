@@ -18,7 +18,7 @@ Example 2: [react-router](https://github.com/rackt/react-router)
 
 ### Relative links
 
-In Github.com README pages, relative links in URL are replaced by absolute links to the resources of the current branch.
+When Github.com renders README pages, relative links in URL are replaced by absolute links to the resources of the current branch.
 
 Example 1: Mostly adequate guide to FP
 
@@ -36,16 +36,22 @@ Example 1: Mostly adequate guide to FP
 
 But when calling Github API, relative links are not replaced, so we have to process the links by ourselves!
 
+Example 2: [Flux](https://github.com/facebook/flux)
+
+### Anchors in async README
+
+TODO
+
 
 ## Check the result in the browser
 
-Launch the Express web server
+STEP 1: launch the Express web server
 
 ```
 babel-node get-github-readme/server
 ```
 
-Check the links and the images in the following links
+STEP 2: check the links and the images in the following pages
 
 * http://localhost:3000/?url=https://github.com/caolan/async
 * http://localhost:3000/?url=https://github.com/node-inspector/node-inspector
@@ -63,7 +69,9 @@ babel-node get-github-readme https://github.com/sindresorhus/awesome
 
 ## micro-service on webtask.io
 
-The "webtask" has been created from Github "raw" code URL
+The "webtask" has been created from Github "raw" code URL.
+
+### `master` branch => production (used by bestofjs.org)
 
 ```
 wt create https://raw.githubusercontent.com/michaelrambeau/microservices/master/get-github-readme/get-github-readme.js  --secret client_id=*** --secret client_secret=*** --secret username=michaelrambeau
@@ -73,4 +81,16 @@ Generated URL:
 
 ```
 https://webtask.it.auth0.com/api/run/wt-***-gmail_com-0/85801138b3a9d89112d0a04eef536d1f?webtask_no_cache=1
+```
+
+### `dev` branch => developpement (local)
+
+```
+wt create https://raw.githubusercontent.com/michaelrambeau/microservices/dev/get-github-readme/get-github-readme.js  --secret client_id=*** --secret client_secret=*** --secret username=michaelrambeau
+```
+
+Generated URL:
+
+```
+https://webtask.it.auth0.com/api/run/wt-mikeair-gmail_com-0/d4bf0bb7021ce02e77d5e2dceac010c7?webtask_no_cache=1
 ```

@@ -58,6 +58,7 @@ STEP 2: check the links and the images in the following pages
 * http://localhost:3000/?url=https://github.com/facebook/flux
 * http://localhost:3000/?url=https://github.com/rackt/react-router
 * http://localhost:3000/?url=https://github.com/MostlyAdequate/mostly-adequate-guide
+* http://localhost:3000/?url=https://github.com/acdlite/recompose
 
 
 

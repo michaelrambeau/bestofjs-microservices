@@ -87,9 +87,13 @@ var getReadMe = function (repo, options, cb) {
       if (DEBUG) console.log('Replace link relative anchors', p1);
       return `<a href="${root}#${p1}">`;
     });
-    //STEP2: replace relative link URL
-    //[Guides and API Docs](/docs) => [Guides and API Docs](https://github.com/rackt/react-router/tree/master/docs)"
-    readme = readme.replace(/<a href="\/(.+?)">/gi, function(match, p1) {
+    //STEP2: replace links to repository files
+    // Example 1: rom react-router <a href="/docs">
+    // [Guides and API Docs](/docs) => [Guides and API Docs](https://github.com/rackt/react-router/tree/master/docs)"
+    // Example 2: from acdlite/recompose: <a href="docs">
+    readme = readme.replace(/<a href="\/*(.+?)">/gi, function(match, p1) {
+      //If the URL starts with http => do nothing
+      if (p1.indexOf('http') === 0) return match;
       if (DEBUG) console.log('Replace link relative URL', p1);
       return `<a href="${root}/blob/master/${p1}">`;
     });

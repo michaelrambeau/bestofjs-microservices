@@ -124,6 +124,15 @@ var getReadMe = function (repo, options, cb) {
       return '';
     });
 
+    // Remove anchors automatically created for all titles
+    // <a id="user-content-react-toolbox" class="anchor" href="#react-toolbox" aria-hidden="true">
+    //   <span class="octicon octicon-link"></span>
+    // </a>
+    readme = readme.replace(/<a id="user-content(.*)" class="anchor" (.*)>(.*)<\/a>/gi, function() {
+      if (DEBUG) console.log('Remove title anchor');
+      return '';
+    });
+
     cb(null, readme);
   });
 };

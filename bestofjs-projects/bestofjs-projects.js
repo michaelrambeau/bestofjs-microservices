@@ -247,6 +247,8 @@ function createSuperproject(project, report) {
 
 function populateProjects(allProjects, allTags) {
   var populate = function (project) {
+    console.log('Populate project', project.name);
+    console.log('tag', project.tag[0].toString());
     var tags = allTags
       .filter( tag => project.tags.map( tag => tag.toString() ).indexOf(tag._id.toString()) > -1 )
       .map( tag => tag.code );

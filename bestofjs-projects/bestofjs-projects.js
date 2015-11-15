@@ -39,7 +39,7 @@ module.exports = function (context, done) {
         status: 'OK',
         date: new Date(),
         projects: populateProjects(result.projects, result.tags),
-        tags: result.tags.map( tag => tag.code )
+        tags: result.tags.map( tag => ({code: tag.code, name: tag.name}) )
       };
       db.close();
       cb(null, json);
@@ -247,16 +247,14 @@ function createSuperproject(project, report) {
 
 function populateProjects(allProjects, allTags) {
   var populate = function (project) {
-    console.log('=======> Populate project', project.name, project.tags);
     var tags = allTags.filter( function(tag) {
       var ids = project.tags.map( tag => tag.toString() );
       return ids.indexOf(tag._id.toString()) > -1;
     });
     tags = tags.map( tag => tag.code );
-    console.log('====> assign', tags);
     project.tags = tags;
     return project;
-    //return Object.assign({}, project, { tags: tags });
+    //return Object.assign({}, project, { tags: tags }); //Object.assign() is not available on webtask.io
   };
   var projects = allProjects.map( project => populate(project) );
   if (DEBUG) console.log('Populated projects', projects);

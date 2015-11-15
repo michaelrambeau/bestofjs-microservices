@@ -250,7 +250,10 @@ function populateProjects(allProjects, allTags) {
     console.log('Populate project', project.name);
     console.log('tag', project.tags[0].toString());
     var tags = allTags
-      .filter( tag => project.tags.map( tag => tag.toString() ).indexOf(tag._id.toString()) > -1 )
+      .filter( function(tag) {
+        var ids = project.tags.map( tag => tag.toString() );
+        return ids.indexOf(tag._id.toString()) > -1;
+      })
       .map( tag => tag.code );
     return Object.assign({}, project, { tags });
   };

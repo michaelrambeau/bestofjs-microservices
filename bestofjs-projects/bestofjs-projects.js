@@ -248,15 +248,13 @@ function createSuperproject(project, report) {
 function populateProjects(allProjects, allTags) {
   var populate = function (project) {
     console.log('=======> Populate project', project.name, project.tags);
-    var tags = allTags
-      .filter( function(tag) {
-        console.log('=====> Filter tag', tag);
-        var ids = project.tags.map( tag => tag.toString() );
-        console.log('======> ids', ids);
-        return ids.indexOf(tag._id.toString()) > -1;
-      })
-      .map( tag => tag.code );
-    return Object.assign({}, project, { tags });
+    var tags = allTags.filter( function(tag) {
+      var ids = project.tags.map( tag => tag.toString() );
+      return ids.indexOf(tag._id.toString()) > -1;
+    });
+    console.log('====> mapping', tags);
+    tags = tags.map( tag => tag.code );
+    return Object.assign({}, project, { tags: tags });
   };
   var projects = allProjects.map( project => populate(project) );
   if (DEBUG) console.log('Populated projects', projects);

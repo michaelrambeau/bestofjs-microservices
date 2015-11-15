@@ -1,9 +1,9 @@
 "use latest";
-var MongoClient = require('mongodb').MongoClient;
+var mongodb = require('mongodb');
+var { MongoClient } = mongodb;
 var {waterfall, parallel, eachLimit}   = require('async');
 var moment = require('moment');
-var _ = require('lodash');
-const DEBUG = true;
+const DEBUG = false;
 
 /*
 
@@ -38,8 +38,8 @@ module.exports = function (context, done) {
       var json = {
         status: 'OK',
         date: new Date(),
-        projects: result.projects,
-        tags: result.tags
+        projects: populateProjects(result.projects, result.tags),
+        tags: result.tags.map( tag => tag.code )
       };
       db.close();
       cb(null, json);
@@ -82,6 +82,7 @@ function getProjects(db, cb) {
   };
 
   // {'github.name': 'express'}
+  // { $exists: true }
   db.collection('project').find({ 'github.name': { $exists: true } }).toArray(function (err, docs) {
     if (err) return cb(err);
     if (DEBUG) console.log(docs.length, 'projects to process...');
@@ -238,8 +239,20 @@ function createSuperproject(project, report) {
     pushed_at: project.github.pushed_at,
 
     //use .pluck to select ids only if populate() is used when making a find() request
-    //tags: project.tags//_.pluck(project.tags, 'id')
-    tags: _.pluck(project.tags, 'code')
+    tags: project.tags
+    //tags: _.pluck(project.tags, 'code')
   };
   return data;
+}
+
+function populateProjects(allProjects, allTags) {
+  var populate = function (project) {
+    var tags = allTags
+      .filter( tag => project.tags.map( tag => tag.toString() ).indexOf(tag._id.toString()) > -1 )
+      .map( tag => tag.code );
+    return Object.assign({}, project, { tags });
+  };
+  var projects = allProjects.map( project => populate(project) );
+  if (DEBUG) console.log('Populated projects', projects);
+  return projects;
 }

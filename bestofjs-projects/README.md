@@ -49,3 +49,17 @@ JSON format:
 ```
 
 Before it was a static JSON file pushed on a static hosting service (divshot.io)
+
+### Memo
+
+How to create the webtask, from the code hosted on Github
+
+```
+wt create https://raw.githubusercontent.com/michaelrambeau/microservices/dev/bestofjs-projects/bestofjs-projects.js  --secret MONGO_URI=***
+```
+
+webtask URL:
+
+```
+https://webtask.it.auth0.com/api/run/wt-mikeair-gmail_com-0/7e80578744c0ce996dde75e152c02da2?webtask_no_cache=1
+```

@@ -252,9 +252,11 @@ function populateProjects(allProjects, allTags) {
       var ids = project.tags.map( tag => tag.toString() );
       return ids.indexOf(tag._id.toString()) > -1;
     });
-    console.log('====> mapping', tags);
     tags = tags.map( tag => tag.code );
-    return Object.assign({}, project, { tags: tags });
+    console.log('====> assign', tags);
+    project.tags = tags;
+    return project;
+    //return Object.assign({}, project, { tags: tags });
   };
   var projects = allProjects.map( project => populate(project) );
   if (DEBUG) console.log('Populated projects', projects);

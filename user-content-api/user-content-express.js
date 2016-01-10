@@ -146,7 +146,7 @@ function tokenMiddleware(req, res, done) {
   const token = req.headers.token;
   if (!token) return res.status(401).send('Token is required!');
   console.log('Checking access_token', token);
-  getUserProfile(token, (err, profile) => {
+  getUserProfile(token, function (err, profile) {
     if (err) return res.status(err.statusCode).send('Authentication error!');
     res.userProfile = profile;
     done(null, profile);

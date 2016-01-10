@@ -94,7 +94,9 @@ function parseApiFetch(credentials) {
       body: null,
       callback: null
     };
+    console.log('Assign before...');
     const opts = Object.assign({}, defaultOptions, settings);
+    console.log('Assign after', opts);
 
     const reqOpts = {
       method: opts.method,

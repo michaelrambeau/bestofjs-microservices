@@ -10,18 +10,18 @@ require('isomorphic-fetch');
 module.exports = process.env.NODE_ENV === 'bestofjs' ? (
   createServer // local environment => run a local Express server
 ) : (
-  Webtask.fromExpress(createServer) // webtask.io environment
+  Webtask.fromExpress(createServer()) // webtask.io environment
 );
 
 function createServer(context) {
-  const credentials = context.data;
   const app = express();
+
+  // Apply custom middlewares to check user token and context credentials
   app.use(tokenMiddleware);
+  app.use(credentialsMiddleware(context));
 
-  // parse application/json
+  // body-parser middleware to parse `application/json` content type
   app.use(bodyParser.json());
-
-  const apiFetch = parseApiFetch(credentials);
 
   // GET: used to check the user profile,
   // for debugging purpose / monitoring the microservice
@@ -35,6 +35,7 @@ function createServer(context) {
     const settings = {
       url: '/classes/Review'
     };
+    const apiFetch = parseApiFetch(res.credentials);
     apiFetch(settings)
       .then(response => response.json())
       .then(json => res.send(json))
@@ -52,6 +53,7 @@ function createServer(context) {
       method: 'POST',
       body: data
     };
+    const apiFetch = parseApiFetch(res.credentials);
     apiFetch(settings)
       .then(response => response.json())
       .then(json => res.send(json))
@@ -70,6 +72,7 @@ function createServer(context) {
       method: 'PUT',
       body: data
     };
+    const apiFetch = parseApiFetch(res.credentials);
     apiFetch(settings)
       .then(response => response.json())
       .then(json => res.send(json))
@@ -113,6 +116,7 @@ function parseApiFetch(credentials) {
   };
 }
 
+// Use
 function getUserProfile(token, done) {
   if (!token) return done(new Error('Token is missing!'));
   const options = {
@@ -126,15 +130,32 @@ function getUserProfile(token, done) {
   });
 }
 
+//
 // Middleware applied to all routes
+//
+
 // Check the token from request headers and update the `res` object with the user profile.
 function tokenMiddleware(req, res, done) {
   const token = req.headers.token;
-  if(!token) return res.status(401).send('Token is required!');
+  if (!token) return res.status(401).send('Token is required!');
   console.log('Checking access_token', token);
   getUserProfile(token, (err, profile) => {
     if (err) return res.status(err.statusCode).send('Authentication error!');
     res.userProfile = profile;
     done(null, profile);
   });
+}
+
+// Check if parse.com credentials are in the context
+// and add them to reponse object
+function credentialsMiddleware(context) {
+  return function (req, res, done) {
+    const reqContext = context || req.webtaskContext;
+    const credentials = reqContext.data;
+    if (!credentials) return res.status(401).send('No credentials!');
+    if (!credentials.application_id) return res.status(401).send('No `application_id` key!');
+    if (!credentials.rest_api_key) return res.status(401).send('No `rest_api_key` key!');
+    res.credentials = credentials;
+    done();
+  };
 }

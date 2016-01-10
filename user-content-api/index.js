@@ -4,8 +4,8 @@ const webtask = require('./user-content-express');
 // parse.com credentials
 const context = {
   data: {
-    applicationId: process.env.PARSE_APPLICATION_ID,
-    restAPIKey: process.env.PARSE_RESTAPI_KEY
+    application_id: process.env.PARSE_APPLICATION_ID,
+    rest_api_key: process.env.PARSE_REST_API_KEY
   }
 };
 

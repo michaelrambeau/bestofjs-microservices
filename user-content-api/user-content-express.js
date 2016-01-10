@@ -29,6 +29,7 @@ function createServer(context) {
     res.send(res.userProfile);
   });
 
+  // GET: show all reviews
   app.get('/reviews', function (req, res) {
     console.log('Fetch reviews...');
     const settings = {
@@ -60,7 +61,7 @@ function createServer(context) {
   // PUT: update an existing review
   app.put('/reviews/:id', function (req, res) {
     const data = Object.assign({}, req.body, {
-      // createdBy: res.userProfile.nickname
+      updatedBy: res.userProfile.nickname
     });
     const id = req.params.id;
     console.log('PUT request to edit', id, data);
@@ -78,7 +79,7 @@ function createServer(context) {
   return app;
 }
 
-
+// Return a function used to make API calls, using `fetch` from `isomorphic-fetch` module
 function parseApiFetch(credentials) {
   return function (settings) {
     console.log('API request', settings);
@@ -94,17 +95,10 @@ function parseApiFetch(credentials) {
     const reqOpts = {
       method: opts.method,
       headers: {
-        'X-Parse-Application-Id': credentials.applicationId,
-        'X-Parse-REST-API-Key': credentials.restAPIKey
+        'X-Parse-Application-Id': credentials.application_id,
+        'X-Parse-REST-API-Key': credentials.rest_api_key
       }
     };
-    if (this._sessionToken) {
-      reqOpts.headers['X-Parse-Session-Token'] = this._sessionToken;
-    }
-
-    if (this._masterKey) {
-      reqOpts.headers['X-Parse-Master-Key'] = this.masterKey;
-    }
 
     if (opts.method === 'POST' || opts.method === 'PUT') {
       reqOpts.headers['Accept'] = 'application/json';
@@ -136,6 +130,7 @@ function getUserProfile(token, done) {
 // Check the token from request headers and update the `res` object with the user profile.
 function tokenMiddleware(req, res, done) {
   const token = req.headers.token;
+  if(!token) return res.status(401).send('Token is required!');
   console.log('Checking access_token', token);
   getUserProfile(token, (err, profile) => {
     if (err) return res.status(err.statusCode).send('Authentication error!');

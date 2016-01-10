@@ -14,11 +14,11 @@ module.exports = process.env.NODE_ENV === 'bestofjs' ? (
 );
 
 function createServer(context) {
-  console.log('START the Express server v2015-01-11');
+  console.log('START the Express server v2015-01-11a');
   const app = express();
 
   // Apply custom middlewares to check user token and context credentials
-  app.use(tokenMiddleware);
+  // app.use(tokenMiddleware);
   app.use(credentialsMiddleware(context));
 
   // body-parser middleware to parse `application/json` content type
@@ -31,7 +31,7 @@ function createServer(context) {
   });
 
   // GET: show all reviews
-  app.get('/reviews', function (req, res) {
+  app.get('/reviews', tokenMiddleware, function (req, res) {
     console.log('Fetch reviews...');
     const settings = {
       url: '/classes/Review'
@@ -43,7 +43,7 @@ function createServer(context) {
   });
 
   // POST: create a new review
-  app.post('/reviews', function (req, res) {
+  app.post('/reviews', tokenMiddleware, function (req, res) {
     const data = {};
     _.assign(data, req.body, {
       createdBy: res.userProfile.nickname
@@ -61,7 +61,7 @@ function createServer(context) {
   });
 
   // PUT: update an existing review
-  app.put('/reviews/:id', function (req, res) {
+  app.put('/reviews/:id', tokenMiddleware, function (req, res) {
     const id = req.params.id;
     console.log('PUT request', id);
     const data = {};
@@ -80,7 +80,7 @@ function createServer(context) {
       .catch(err => res.status(400).send(err.message));
   });
 
-  app.all('*', (req, res) => res.status(404).send('Bad request!'));
+  app.all('*', (req, res) => res.status(404).send('Unknown route!'));
 
   return app;
 }

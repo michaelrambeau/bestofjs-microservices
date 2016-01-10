@@ -62,12 +62,13 @@ function createServer(context) {
 
   // PUT: update an existing review
   app.put('/reviews/:id', function (req, res) {
+    const id = req.params.id;
+    console.log('PUT request', id);
     const data = {};
     _.assign(data, req.body, {
       updatedBy: res.userProfile.nickname
     });
-    const id = req.params.id;
-    console.log('PUT request to edit', id, data);
+    console.log('Data to update', data);
     const settings = {
       url: `/classes/Review/${id}`,
       method: 'PUT',

@@ -11,10 +11,16 @@ Production (using the code from the `master` branch):
 wt create https://raw.githubusercontent.com/michaelrambeau/bestofjs-microservices/master/user-content-api/user-content-express.js  --secret application_id=*** --secret rest_api_key=***
 ```
 
-#### Microservice url
+#### Microservice URLs
 
 Production
 
 ```
 https://webtask.it.auth0.com/api/run/wt-mikeair-gmail_com-0/d3dfe580f1eaa143b3dfb176f454ab66?webtask_no_cache=1
+```
+
+Dev
+
+```
+https://webtask.it.auth0.com/api/run/wt-mikeair-gmail_com-0/8df41e6c061eb057d6dfe22c85815057?webtask_no_cache=1
 ```

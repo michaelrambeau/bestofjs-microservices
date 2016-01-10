@@ -14,6 +14,7 @@ module.exports = process.env.NODE_ENV === 'bestofjs' ? (
 );
 
 function createServer(context) {
+  console.console.log('START the express server v2015-01-11');
   const app = express();
 
   // Apply custom middlewares to check user token and context credentials

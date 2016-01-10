@@ -1,4 +1,4 @@
-'use latest';
+"use latest";
 
 const express = require('express');
 const Webtask = require('webtask-tools'); /* express app as a webtask */

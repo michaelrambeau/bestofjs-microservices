@@ -80,6 +80,8 @@ function createServer(context) {
       .catch(err => res.status(400).send(err.message));
   });
 
+  app.all('*', (req, res) => res.status(404).send('Bad request!'));
+
   return app;
 }
 

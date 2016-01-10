@@ -27,7 +27,7 @@ function createServer(context) {
   // GET: used to check the user profile,
   // for debugging purpose / monitoring the microservice
   app.get('/', function (req, res) {
-    res.send(res.userProfile);
+    res.json({ user: res.userProfile });
   });
 
   // GET: show all reviews
@@ -38,8 +38,8 @@ function createServer(context) {
     };
     const apiFetch = parseApiFetch(res.credentials);
     apiFetch(settings)
-      .then(json => res.send(json))
-      .catch(err => res.status(400).send(err.message));
+      .then(json => res.json(json))
+      .catch(err => res.status(400).json({ error: err.message }));
   });
 
   // POST: create a new review
@@ -56,8 +56,8 @@ function createServer(context) {
     };
     const apiFetch = parseApiFetch(res.credentials);
     apiFetch(settings)
-      .then(json => res.send(json))
-      .catch(err => res.status(400).send(err.message));
+      .then(json => res.json(json))
+      .catch(err => res.status(400).json({ error: err.message }));
   });
 
   // PUT: update an existing review
@@ -76,11 +76,14 @@ function createServer(context) {
     };
     const apiFetch = parseApiFetch(res.credentials);
     apiFetch(settings)
-      .then(json => res.send(json))
-      .catch(err => res.status(400).send(err.message));
+      .then(json => res.json(json))
+      .catch(err => res.status(400).json({ error: err.message }));
   });
 
-  app.all('*', (req, res) => res.status(404).send('Unknown route!'));
+  app.all('*', (req, res) => {
+    console.log('Unknown route!');
+    res.status(404).json({ error: 'Unknown route!' });
+  });
 
   return app;
 }
@@ -149,11 +152,11 @@ function getUserProfile(token, done) {
 // Check the token from request headers and update the `res` object with the user profile.
 function tokenMiddleware(req, res, done) {
   const token = req.headers.token;
-  if (!token) return res.status(401).send('Token is required!');
+  if (!token) return res.status(401).json({ error: 'Token is required!' });
   console.log('Checking access_token', token);
   getUserProfile(token, function (err, profile) {
-    if (err) return res.status(401).send('Authentication error');
-    if (!profile) return res.status(401).send('No user profile');
+    if (err) return res.status(401).json({ error: 'Authentication error' });
+    if (!profile) return res.status(401).json({ error: 'No user profile' });
     console.log('Auth0 Response OK!', profile.nickname);
     res.userProfile = profile;
     done();

@@ -130,8 +130,9 @@ function getUserProfile(token, done) {
     domain: 'bestofjs.auth0.com',
     userAccessToken: token
   };
-  console.log('Auth0 API call', options);
+  console.log('Auth0 API call...', options);
   Auth0.getUserInfo(options, function (err, profile) {
+    console.log('Got the response from auth0', err, profile);
     if (err) return done(err);
     done(null, profile);
   });

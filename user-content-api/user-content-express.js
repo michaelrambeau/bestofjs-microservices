@@ -2,7 +2,7 @@
 
 const express = require('express');
 const Webtask = require('webtask-tools'); /* express app as a webtask */
-const Auth0 = require('auth0@0.8.2');
+const Auth0 = require('auth0');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
 require('isomorphic-fetch');
@@ -132,7 +132,7 @@ function getUserProfile(token, done) {
   };
   console.log('Auth0 API call...', options, typeof Auth0.getUserInfo);
   Auth0.getUserInfo(options, function (err, profile) {
-    console.log('Got the response from auth0', err, profile);
+    console.log('Got the response from auth0');
     if (err) return done(err);
     done(null, profile);
   });

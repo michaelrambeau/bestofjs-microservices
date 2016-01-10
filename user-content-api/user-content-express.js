@@ -150,9 +150,10 @@ function tokenMiddleware(req, res, done) {
   console.log('Checking access_token', token);
   getUserProfile(token, function (err, profile) {
     if (err) return res.status(401).send('Authentication error');
-    console.log('Auth0 Response OK!');
+    if (!profile) return res.status(401).send('No user profile');
+    console.log('Auth0 Response OK!', profile.nickname);
     res.userProfile = profile;
-    done(null, profile);
+    done();
   });
 }
 

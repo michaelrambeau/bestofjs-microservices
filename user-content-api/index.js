@@ -10,8 +10,7 @@ const context = {
 };
 
 console.log('Starting manually the Express server', context.data);
-webtask(context, (err, app) => {
-  const PORT = 3000;
-  console.log('Express server listening on port', PORT);
-  app.listen(PORT);
-});
+const app = webtask(context);
+const PORT = 3000;
+console.log('Express server listening on port', PORT);
+app.listen(PORT);

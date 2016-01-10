@@ -86,6 +86,7 @@ function createServer(context) {
 function parseApiFetch(credentials) {
   return function (settings) {
     console.log('API request', settings);
+    if (!credentials) throw new Error('No credentials passed to `parseFetch()!`');
     const API_BASE_URL = 'https://api.parse.com/1';
     const defaultOptions = {
       method: 'GET',
@@ -112,6 +113,7 @@ function parseApiFetch(credentials) {
       reqOpts.body = JSON.stringify(opts.body);
     }
 
+    console.log('Fetching', reqOpts);
     return fetch(API_BASE_URL + opts.url, reqOpts);
   };
 }

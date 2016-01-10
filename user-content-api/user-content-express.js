@@ -13,7 +13,7 @@ module.exports = process.env.NODE_ENV === 'bestofjs' ? (
   Webtask.fromExpress(createServer) // webtask.io environment
 );
 
-function createServer(context) {
+function createServer(context, done) {
   const credentials = context.data;
   const app = express();
   app.use(tokenMiddleware);
@@ -76,7 +76,7 @@ function createServer(context) {
       .catch(err => res.status(err.statusCode).send(err.message));
   });
 
-  return app;
+  done(null, app);
 }
 
 // Return a function used to make API calls, using `fetch` from `isomorphic-fetch` module

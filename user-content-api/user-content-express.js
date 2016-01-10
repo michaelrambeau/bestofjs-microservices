@@ -2,7 +2,6 @@
 
 const express = require('express');
 const Webtask = require('webtask-tools'); /* express app as a webtask */
-const Auth0 = require('auth0');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
 require('isomorphic-fetch');
@@ -38,9 +37,8 @@ function createServer(context) {
     };
     const apiFetch = parseApiFetch(res.credentials);
     apiFetch(settings)
-      .then(response => response.json())
       .then(json => res.send(json))
-      .catch(err => res.status(err.statusCode).send(err.message));
+      .catch(err => res.status(400).send(err.message));
   });
 
   // POST: create a new review
@@ -57,9 +55,8 @@ function createServer(context) {
     };
     const apiFetch = parseApiFetch(res.credentials);
     apiFetch(settings)
-      .then(response => response.json())
       .then(json => res.send(json))
-      .catch(err => res.status(err.statusCode).send(err.message));
+      .catch(err => res.status(400).send(err.message));
   });
 
   // PUT: update an existing review
@@ -77,9 +74,8 @@ function createServer(context) {
     };
     const apiFetch = parseApiFetch(res.credentials);
     apiFetch(settings)
-      .then(response => response.json())
       .then(json => res.send(json))
-      .catch(err => res.status(err.statusCode).send(err.message));
+      .catch(err => res.status(400).send(err.message));
   });
 
   return app;
@@ -119,23 +115,27 @@ function parseApiFetch(credentials) {
     }
 
     console.log('Fetching', reqOpts);
-    return fetch(API_BASE_URL + opts.url, reqOpts);
+    return fetch(API_BASE_URL + opts.url, reqOpts)
+      .then(response => checkStatus(response))
+      .then(response => response.json());
   };
 }
 
-// Use
+// Get user profile from `id_token` (16 characters token)
 function getUserProfile(token, done) {
   if (!token) return done(new Error('Token is missing!'));
+  console.log('Auth0 API call...');
   const options = {
-    domain: 'bestofjs.auth0.com',
-    userAccessToken: token
+    headers: {
+      'Authorization': 'Bearer ' + token
+    }
   };
-  console.log('Auth0 API call...', options, typeof Auth0.getUserInfo);
-  Auth0.getUserInfo(options, function (err, profile) {
-    console.log('Got the response from auth0');
-    if (err) return done(err);
-    done(null, profile);
-  });
+  const url = 'https://bestofjs.auth0.com/userinfo';
+  fetch(url, options)
+    .then(response => checkStatus(response))
+    .then(response => response.json())
+    .then(json => done(null, json))
+    .catch(err => done(err));
 }
 
 //
@@ -148,7 +148,8 @@ function tokenMiddleware(req, res, done) {
   if (!token) return res.status(401).send('Token is required!');
   console.log('Checking access_token', token);
   getUserProfile(token, function (err, profile) {
-    if (err) return res.status(err.statusCode).send('Authentication error!');
+    if (err) return res.status(401).send('Authentication error');
+    console.log('Auth0 Response OK!');
     res.userProfile = profile;
     done(null, profile);
   });
@@ -166,4 +167,14 @@ function credentialsMiddleware(context) {
     res.credentials = credentials;
     done();
   };
+}
+
+function checkStatus(response) {
+  if (response.status >= 200 && response.status < 300) {
+    return response;
+  } else {
+    const error = new Error(response.statusText);
+    error.response = response;
+    throw error;
+  }
 }

@@ -95,7 +95,7 @@ function parseApiFetch(credentials) {
       body: null,
       callback: null
     };
-    console.log('Assign before...');
+    console.log('Assign before...', typeof Object.assign);
     const opts = Object.assign({}, defaultOptions, settings);
     console.log('Assign after', opts);
 
@@ -167,12 +167,12 @@ function credentialsMiddleware(context) {
 
 function polyfill() {
   if (!Object.assign) {
+    console.log('Polyfill!');
     Object.defineProperty(Object, 'assign', {
       enumerable: false,
       configurable: true,
       writable: true,
       value: function(target) {
-        'use strict';
         if (target === undefined || target === null) {
           throw new TypeError('Cannot convert first argument to object');
         }

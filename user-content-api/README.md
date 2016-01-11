@@ -5,10 +5,14 @@ Basically, it is a REST API built with an Express web server listening for reque
 
 #### Command line used to deploy the service on webtask.io
 
+Don't forget to add the extra parameters `--no-parse --no-merge`, as mentioned in this page: https://github.com/auth0/wt-cli/tree/master/sample-webtasks#expressjs
+
+Otherwise JSON body parsing middleware will fail silently... it was really difficult to debug!
+
 Production (using the code from the `master` branch):
 
 ```
-wt create https://raw.githubusercontent.com/michaelrambeau/bestofjs-microservices/master/user-content-api/user-content-express.js  --secret application_id=*** --secret rest_api_key=***
+wt create https://raw.githubusercontent.com/michaelrambeau/bestofjs-microservices/master/user-content-api/user-content-express.js  --secret application_id=*** --secret rest_api_key=*** --no-parse --no-merge
 ```
 
 #### Microservice URLs

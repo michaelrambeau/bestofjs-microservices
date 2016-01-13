@@ -57,15 +57,21 @@ function createServer(context) {
     const apiFetch = parseApiFetch(res.credentials);
     apiFetch(settings)
       .then(json => res.json(json))
-      .catch(err => res.status(400).json({ error: err.message }));
+      .catch(err => {
+        console.log('ERROR', err.message);
+        res.status(400).json({ error: err.message });
+      });
   });
 
   // PUT: update an existing review
   app.put('/reviews/:id', tokenMiddleware, function (req, res) {
     const id = req.params.id;
     console.log('PUT request', id);
-    const data = {};
-    _.assign(data, req.body, {
+
+    // Keep only `rating` and `comment` fields from the PUT request
+    const data = _.pick(req.body, ['rating', 'comment']);
+    // Add 'updatedBy' field
+    _.assign(data, {
       updatedBy: res.userProfile.nickname
     });
     console.log('Data to update', data);
@@ -121,7 +127,6 @@ function parseApiFetch(credentials) {
       reqOpts.body = JSON.stringify(opts.body);
     }
 
-    console.log('Fetching', reqOpts);
     return fetch(API_BASE_URL + opts.url, reqOpts)
       .then(response => checkStatus(response))
       .then(response => response.json());
@@ -181,6 +186,7 @@ function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {
     return response;
   } else {
+    console.log('Response=', response.json());
     const error = new Error(response.statusText);
     error.response = response;
     throw error;

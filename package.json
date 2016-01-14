@@ -21,7 +21,7 @@
     "tape": "^4.2.0"
   },
   "scripts": {
-    "test": "babel-node get-github-readme/spec | faucet"
+    "test": "node --harmony get-github-readme/spec | faucet"
   },
   "keywords": [
     "micro-services",

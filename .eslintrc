@@ -12,6 +12,7 @@
     "camelcase": 0,
     "quotes": 1,
     "dot-notation": 0,
-    "no-console": 0
+    "no-console": 0,
+    "no-else-return": 0
   }
 }

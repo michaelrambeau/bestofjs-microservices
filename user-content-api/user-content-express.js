@@ -26,12 +26,13 @@ function createServer(context) {
 
   // GET: used to check the user profile,
   // for debugging purpose / monitoring the microservice
-  app.get('/', function (req, res) {
+  app.get('/', tokenMiddleware, function (req, res) {
     res.json({ user: res.userProfile });
   });
 
   // GET: show all reviews
-  app.get('/reviews', tokenMiddleware, function (req, res) {
+  // Token is NOT required.
+  app.get('/reviews', function (req, res) {
     console.log('Fetch reviews...');
     const settings = {
       url: '/classes/Review'

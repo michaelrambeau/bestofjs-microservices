@@ -30,12 +30,34 @@ function createServer(context) {
     res.json({ user: res.userProfile });
   });
 
+  createRoutes(app, {
+    endPoint: '/reviews',
+    className: 'Review'
+  });
+  createRoutes(app, {
+    endPoint: '/links',
+    className: 'Link'
+  });
+
+  app.all('*', (req, res) => {
+    console.log('Unknown route!');
+    res.status(404).json({ error: 'Unknown route!' });
+  });
+
+  return app;
+}
+
+function createRoutes(app, options) {
+  // API URL end point: `/reviews` or `/links`
+  const endPoint = options.endPoint;
+  // Class name defined in parse.com
+  const className = options.className;
+
   // GET: show all reviews
   // Token is NOT required.
-  app.get('/reviews', function (req, res) {
-    console.log('Fetch reviews...');
+  app.get(endPoint, function (req, res) {
     const settings = {
-      url: '/classes/Review'
+      url: `/classes/${className}`
     };
     const apiFetch = parseApiFetch(res.credentials);
     apiFetch(settings)
@@ -44,14 +66,14 @@ function createServer(context) {
   });
 
   // POST: create a new review
-  app.post('/reviews', tokenMiddleware, function (req, res) {
+  app.post(endPoint, tokenMiddleware, function (req, res) {
     const data = {};
     _.assign(data, req.body, {
       createdBy: res.userProfile.nickname
     });
     console.log('POST request', data);
     const settings = {
-      url: '/classes/Review',
+      url: `/classes/${className}`,
       method: 'POST',
       body: data
     };
@@ -65,7 +87,7 @@ function createServer(context) {
   });
 
   // PUT: update an existing review
-  app.put('/reviews/:id', tokenMiddleware, function (req, res) {
+  app.put(`${endPoint}/:id`, tokenMiddleware, function (req, res) {
     const id = req.params.id;
     console.log('PUT request', id);
 
@@ -86,13 +108,6 @@ function createServer(context) {
       .then(json => res.json(json))
       .catch(err => res.status(400).json({ error: err.message }));
   });
-
-  app.all('*', (req, res) => {
-    console.log('Unknown route!');
-    res.status(404).json({ error: 'Unknown route!' });
-  });
-
-  return app;
 }
 
 // Return a function used to make API calls, using `fetch` from `isomorphic-fetch` module

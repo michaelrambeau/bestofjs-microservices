@@ -1,4 +1,4 @@
-"use latest";
+'use latest';
 
 const express = require('express');
 const Webtask = require('webtask-tools'); /* express app as a webtask */
@@ -30,13 +30,18 @@ function createServer(context) {
     res.json({ user: res.userProfile });
   });
 
+  // REVIEWS API
   createRoutes(app, {
     endPoint: '/reviews',
-    className: 'Review'
+    className: 'Review',
+    editableFields: ['rating', 'comment']
   });
+
+  // LINKS API
   createRoutes(app, {
     endPoint: '/links',
-    className: 'Link'
+    className: 'Link',
+    editableFields: ['url', 'title', 'comment', 'projects']
   });
 
   app.all('*', (req, res) => {
@@ -50,8 +55,12 @@ function createServer(context) {
 function createRoutes(app, options) {
   // API URL end point: `/reviews` or `/links`
   const endPoint = options.endPoint;
+
   // Class name defined in parse.com
   const className = options.className;
+
+  // Array of field name that can be updated by PUT requests
+  const editableFields = options.editableFields;
 
   // GET: show all reviews
   // Token is NOT required.
@@ -65,7 +74,7 @@ function createRoutes(app, options) {
       .catch(err => res.status(400).json({ error: err.message }));
   });
 
-  // POST: create a new review
+  // POST: create a new item
   app.post(endPoint, tokenMiddleware, function (req, res) {
     const data = {};
     _.assign(data, req.body, {
@@ -86,20 +95,20 @@ function createRoutes(app, options) {
       });
   });
 
-  // PUT: update an existing review
+  // PUT: update an existing item
   app.put(`${endPoint}/:id`, tokenMiddleware, function (req, res) {
     const id = req.params.id;
-    console.log('PUT request', id);
+    console.log('PUT request', id, req.body);
 
     // Keep only `rating` and `comment` fields from the PUT request
-    const data = _.pick(req.body, ['rating', 'comment']);
+    const data = _.pick(req.body, editableFields);
     // Add 'updatedBy' field
     _.assign(data, {
       updatedBy: res.userProfile.nickname
     });
     console.log('Data to update', data);
     const settings = {
-      url: `/classes/Review/${id}`,
+      url: `/classes/${className}/${id}`,
       method: 'PUT',
       body: data
     };

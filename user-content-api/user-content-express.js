@@ -15,6 +15,7 @@ module.exports = process.env.NODE_ENV === 'bestofjs' ? (
 
 function createServer(context) {
   console.log('START the Express server v2015-01-11a');
+  var i = 0;
   const app = express();
 
   // Apply custom middlewares to check user token and context credentials
@@ -27,7 +28,11 @@ function createServer(context) {
   // GET: used to check the user profile,
   // for debugging purpose / monitoring the microservice
   app.get('/', tokenMiddleware, function (req, res) {
-    res.json({ user: res.userProfile });
+    i++;
+    res.json({
+      user: res.userProfile,
+      i
+    });
   });
 
   // REVIEWS API
